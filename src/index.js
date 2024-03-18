@@ -1,17 +1,26 @@
-const GEOCODE_API_KEY = 'this needs to be populated';
+const GEOCODE_API_KEY = '65f72560cc5c4741478354siac76dcb';
 
 const PLACEHOLDER_OPTIONS = [
-    "Portland, OR",
-    "Great Blue Hole",
-    "Hana, HI",
-    "Area 51"
+    'Portland, OR',
+    'Hana, HI',
+    'Area 51',
+    'Monument Valley',
+    'Salton Sea',
+    'Savannah Historic District',
+    'Napa Valley',
+    'Key West',
+    'Kenai Fjords National Park',
+    'Great Salt Lake',
+    'Acadia National Park',
+    'The Breakers, Newport',
+    'Charleston, South Carolina',
 ]
 
 document.addEventListener('DOMContentLoaded', await initialize);
 
 async function initialize() {
     const input = document.getElementById('place');
-    input.placeholder = selectPlaceholder();
+    input.placeholder = `e.g. ${selectPlaceholder()}`;
 
     const form = document.getElementById('place-search');
     form.addEventListener('submit', onSubmit);
@@ -22,17 +31,29 @@ function selectPlaceholder() {
     return PLACEHOLDER_OPTIONS[index];
 }
 
+function clear() {
+    const error = document.getElementById('error');
+    if (error) error.remove();
+
+    const weatherNow = document.getElementById('weather-now');
+    if (weatherNow) weatherNow.remove();
+
+    const weatherForecasts = document.getElementsByClassName('weather-forecast');
+    Array.from(weatherForecasts).forEach(e => e.remove());
+}
+
 /**
  * @param {MouseEvent} event
  */
 async function onSubmit(event) {
     event.preventDefault();
+    clear();
 
     const input = document.getElementById('place');
 
     /** @type {{ lat:number, lon:number }[]} */
     const places = await request(`https://geocode.maps.co/search?q=${input.value}&api_key=${GEOCODE_API_KEY}`);
-    if (!places) {
+    if (!places || places.length === 0) {
         renderError('We couldn\'t find that place.');
         return;
     }
@@ -71,7 +92,7 @@ async function onSubmit(event) {
     }
 
     const currentWeather = {
-        timestamp: observation.properties.timestamp,
+        timestamp: new Date(observation.properties.timestamp),
         description: observation.properties.textDescription,
         temperature: observation.properties.temperature.value
     }
@@ -85,15 +106,21 @@ async function onSubmit(event) {
         return
     }
 
-    const hourlyPeriods = forecast.properties.periods;
-    const hourlyPeriodsByDay = Object.groupBy(hourlyPeriods, period => period.startTime.substring(0, 10));
-
-    renderForecast(hourlyPeriodsByDay);
+    forecast.properties.periods
+        .map(p => ({
+            start: new Date(p.startTime),
+            stop: new Date(p.endTime),
+            daytime: p.isDaytime,
+            temperature: p.temperature,
+            description: p.shortForecast
+        }))
+        .forEach(renderForecast);
 }
 
 async function request(url) {
     const sanitizedURL = encodeURI(url);
     const response = await fetch(sanitizedURL);
+    console.debug(`GET ${sanitizedURL}`);
     if (response.ok) return response.json();
 }
 
@@ -114,29 +141,68 @@ function renderError(message) {
 }
 
 function renderCurrentWeather(place, station, weather) {
-    const currentElement = document.createElement('div');
-    currentElement.id = 'weather-current';
+    const weatherNowElement = document.createElement('div');
+    weatherNowElement.id = 'weather-now';
 
     const placeElement = document.createElement('div');
+    placeElement.classList.add('place');
     placeElement.textContent = place.name;
-    currentElement.append(placeElement);
+    weatherNowElement.append(placeElement);
 
     const stationElement = document.createElement('div');
-    stationElement.textContent = `Station: ${station.id} at ${station.name}`;
-    currentElement.append(stationElement);
+    stationElement.classList.add('station');
+    stationElement.textContent = `${station.id} at ${station.name}`;
+    weatherNowElement.append(stationElement);
+
+    const timestampElement = document.createElement('div');
+    timestampElement.classList.add('timestamp');
+    timestampElement.textContent = weather.timestamp;
+    weatherNowElement.append(timestampElement);
 
     const temperatureElement = document.createElement('div');
-    temperatureElement.textContent = weather.temperature
-    currentElement.append(temperatureElement);
+    temperatureElement.classList.add('temperature');
+    temperatureElement.textContent = `${celsiusToFahrenheit(weather.temperature)} °F`
+    weatherNowElement.append(temperatureElement);
+
+    const descriptionElement = document.createElement('div');
+    descriptionElement.classList.add('description');
+    descriptionElement.textContent = weather.description;
+    weatherNowElement.append(descriptionElement);
 
     const footer = document.getElementsByTagName('footer').item(0);
-    footer.insertAdjacentElement('beforebegin', currentElement);
+    footer.insertAdjacentElement('beforebegin', weatherNowElement);
 }
 
-function renderForecast(data) {
-    const div = document.createElement('div');
-    div.textContent = JSON.stringify(data, null, 2);
+function renderForecast(forecast) {
+    const weatherForecastElement = document.createElement('div');
+    weatherForecastElement.id = `${forecast.start.getTime()}`;
+    weatherForecastElement.classList.add('weather-forecast');
+    weatherForecastElement.classList.add(forecast.daytime ? 'day' : 'night')
+
+    const timeElement = document.createElement('div');
+    timeElement.classList.add('time');
+    let timeString = forecast.start.toLocaleTimeString('en-US', { hour: 'numeric' });
+    if (forecast.start.getHours() === 0) {
+        const date = forecast.start.toLocaleDateString('en-US', { weekday: 'long' });
+        timeString = `${timeString} (${date})`;
+    }
+    timeElement.textContent = timeString
+    weatherForecastElement.append(timeElement);
+
+    const descriptionElement = document.createElement('div');
+    descriptionElement.classList.add('description');
+    descriptionElement.textContent = forecast.description;
+    weatherForecastElement.append(descriptionElement);
+
+    const temperatureElement = document.createElement('div');
+    temperatureElement.classList.add('temperature');
+    temperatureElement.textContent = `${forecast.temperature} °F`;
+    weatherForecastElement.append(temperatureElement);
 
     const footer = document.getElementsByTagName('footer').item(0);
-    footer.insertAdjacentElement('beforebegin', div);
+    footer.insertAdjacentElement('beforebegin', weatherForecastElement);
+}
+
+function celsiusToFahrenheit(temp) {
+    return Math.round((temp * 9/5) + 32);
 }

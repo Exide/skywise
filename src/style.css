@@ -1,9 +1,13 @@
 :root {
     --background-normal: #111;
+    --background-day: #99915a;
+    --background-night: #5a5d99;
     --foreground-lowlight: #666;
     --foreground-normal: #aaa;
     --foreground-highlight: #fff;
     --foreground-error: #f90;
+    --foreground-day: black;
+    --foreground-night: white;
     --link-normal: #00aaff;
     --link-hover: #aaff00;
     --font-heading-family: "Noto Serif", serif;
@@ -30,6 +34,7 @@ html, body {
 body {
     display: flex;
     flex-direction: column;
+    gap: var(--line-padding);
     padding: var(--page-padding);
 }
 
@@ -39,15 +44,11 @@ a:hover   { color: var(--link-hover); text-decoration: none; }
 a:active  { color: var(--foreground-highlight); text-decoration: none; }
 
 h1 {
-    margin: var(--line-padding);
     color: var(--foreground-highlight);
 }
 
 h1,p,form {
     text-align: center;
-}
-
-form {
 }
 
 fieldset {
@@ -59,11 +60,12 @@ form,fieldset {
 }
 
 label {
-    display: inline-block;
-    margin: var(--page-padding);
+    display: block;
+    padding: var(--line-padding);
 }
 
 input {
+    width: 400px;
     padding: var(--line-padding);
 }
 
@@ -74,8 +76,56 @@ button {
 
 .error {
     color: var(--foreground-error);
-    padding: var(--line-padding);
+    padding: var(--page-padding);
     font-size: var(--font-error-size);
+}
+
+#weather-now {
+    margin: var(--page-padding);
+}
+
+#weather-now div {
+    text-align: center;
+}
+
+#weather-now .place {
+    color: var(--foreground-highlight);
+    font-size: 1.5em;
+}
+
+#weather-now .station,
+#weather-now .timestamp {
+    font-size: 0.75em;
+}
+
+#weather-now .temperature {
+    color: var(--foreground-highlight);
+    font-size: 3em;
+}
+
+.weather-forecast {
+    display: flex;
+    flex-direction: row;
+    width: 400px;
+    margin: 0 auto;
+}
+
+.weather-forecast div {
+    padding: var(--line-padding);
+}
+
+.weather-forecast .time {
+    flex: 1;
+}
+
+.day {
+    color: var(--foreground-day);
+    background-color: var(--background-day);
+}
+
+.night {
+    color: var(--foreground-night);
+    background-color: var(--background-night);
 }
 
 footer {
