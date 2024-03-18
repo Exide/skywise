@@ -1,0 +1,87 @@
+:root {
+    --background-normal: #111;
+    --foreground-lowlight: #666;
+    --foreground-normal: #aaa;
+    --foreground-highlight: #fff;
+    --foreground-error: #f90;
+    --link-normal: #00aaff;
+    --link-hover: #aaff00;
+    --font-heading-family: "Noto Serif", serif;
+    --font-normal-family: "Noto Sans", sans-serif;
+    --font-normal-line-height: 1.25;
+    --font-normal-size: 1em;
+    --font-normal: var(--font-normal-size)/var(--font-normal-line-height) var(--font-normal-family);
+    --font-error-size: 0.75em;
+    --page-padding: 20px;
+    --line-padding: 5px;
+}
+
+* {
+    padding: 0;
+    margin: 0;
+}
+
+html, body {
+    font: var(--font-normal);
+    color: var(--foreground-normal);
+    background-color: var(--background-normal);
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    padding: var(--page-padding);
+}
+
+a         { color: var(--link-normal); text-decoration: none; }
+a:visited { color: var(--link-normal); text-decoration: none; }
+a:hover   { color: var(--link-hover); text-decoration: none; }
+a:active  { color: var(--foreground-highlight); text-decoration: none; }
+
+h1 {
+    margin: var(--line-padding);
+    color: var(--foreground-highlight);
+}
+
+h1,p,form {
+    text-align: center;
+}
+
+form {
+}
+
+fieldset {
+    border: 0;
+}
+
+form,fieldset {
+    display: block;
+}
+
+label {
+    display: inline-block;
+    margin: var(--page-padding);
+}
+
+input {
+    padding: var(--line-padding);
+}
+
+button {
+    width: max-content;
+    padding: var(--line-padding);
+}
+
+.error {
+    color: var(--foreground-error);
+    padding: var(--line-padding);
+    font-size: var(--font-error-size);
+}
+
+footer {
+    margin: var(--page-padding);
+    font-family: var(--font-normal-family);
+    font-size: 0.8em;
+    color: var(--foreground-lowlight);
+    text-align: center;
+}
