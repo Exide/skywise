@@ -9,9 +9,9 @@ terraform {
 
   backend "s3" {
     region = "us-west-2"
-    bucket = "skywise"
-    key = "terraform"
-    dynamodb_table = "skywise-terraform-lock"
+    bucket = "ryan-zander"
+    key = "skywise"
+    dynamodb_table = "ryan-zander-terraform-lock"
   }
 }
 
